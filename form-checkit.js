@@ -17,14 +17,23 @@ class FormCheckIt {
 		const textFields = this.form.querySelectorAll('input[required]:where([type="text"],[type="email"],[type="password"],[type="date"],[type="tel"])')
 		const textareaFields = this.form.querySelectorAll('textarea[required]')
 		const selectFields = this.form.querySelectorAll('select[required]')
+		const checkboxFields = this.form.querySelectorAll('input[required]:where([type="checkbox"],[type="radio"])')
+		const groupFields = this.form.querySelectorAll('[data-js-checkboxes="required"]')
 
 		this.fields.text = textFields
 		this.fields.textarea = textareaFields
 		this.fields.select = selectFields
+		this.fields.checkbox = checkboxFields
+		this.fields.group = []
 
 		textFields?.forEach(field => { this.watchForChanges(field) })
 		textareaFields?.forEach(field => { this.watchForChanges(field) })
 		selectFields?.forEach(field => { this.watchForChanges(field) })
+		checkboxFields?.forEach(field => { this.watchForChanges(field) })
+		groupFields?.forEach((group, index) => {
+			this.fields.group.push(group.querySelectorAll('input[type="checkbox"],input[type="radio"]'))
+			this.fields.group[index].forEach(field => { this.watchForChanges(field) })
+		})
 	}
 
 	watchForChanges (field) {
@@ -54,12 +63,22 @@ class FormCheckIt {
 		})
 
 		Array.from(this.fields.select)?.forEach(field => {
-			if (field.value === 'default') {
+			if (field.value === '') {
 				field.classList.add('is-invalid')
 				valid = false
 			}
 			else {
 				field.classList.remove('is-invalid')
+			}
+		})
+
+		Array.from(this.fields.group)?.forEach(group => {
+			let count = 0
+			group.forEach(field => {
+				if (field.checked) count++
+			})
+			if (count < 1) {
+				valid = false
 			}
 		})
 
