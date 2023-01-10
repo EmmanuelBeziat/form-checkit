@@ -14,7 +14,7 @@ class FormCheckIt {
 	}
 
 	listRequiredFields () {
-		const textFields = this.form.querySelectorAll('input[required]:where([type="text"],[type="email"],[type="password"])')
+		const textFields = this.form.querySelectorAll('input[required]:where([type="text"],[type="email"],[type="password"],[type="date"],[type="tel"])')
 		const textareaFields = this.form.querySelectorAll('textarea[required]')
 		const selectFields = this.form.querySelectorAll('select[required]')
 
@@ -35,6 +35,26 @@ class FormCheckIt {
 		let valid = true
 		Array.from(this.fields.text)?.forEach(field => {
 			if (!field.value) {
+				field.classList.add('is-invalid')
+				valid = false
+			}
+			else {
+				field.classList.remove('is-invalid')
+			}
+		})
+
+		Array.from(this.fields.textarea)?.forEach(field => {
+			if (!field.value) {
+				field.classList.add('is-invalid')
+				valid = false
+			}
+			else {
+				field.classList.remove('is-invalid')
+			}
+		})
+
+		Array.from(this.fields.select)?.forEach(field => {
+			if (field.value === 'default') {
 				field.classList.add('is-invalid')
 				valid = false
 			}
