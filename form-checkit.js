@@ -7,10 +7,12 @@ class FormCheckIt {
 
 		this.listOptions()
 		this.listRequiredFields()
+
+		if (this.options?.immediateValidation) this.checkValidation()
 	}
 
 	listOptions () {
-		if (this.options.submitDisabled) this.disableSubmit()
+		if (this.options?.submitDisabled) this.disableSubmit()
 	}
 
 	listRequiredFields () {
@@ -36,8 +38,35 @@ class FormCheckIt {
 		})
 	}
 
+	removeRequiredFields () {
+		const textFields = this.form.querySelectorAll('input[required]:where([type="text"],[type="email"],[type="password"],[type="date"],[type="tel"])')
+		const textareaFields = this.form.querySelectorAll('textarea[required]')
+		const selectFields = this.form.querySelectorAll('select[required]')
+		const checkboxFields = this.form.querySelectorAll('input[required]:where([type="checkbox"],[type="radio"])')
+		const groupFields = this.form.querySelectorAll('[data-js-checkboxes="required"]')
+
+		this.fields.text = textFields
+		this.fields.textarea = textareaFields
+		this.fields.select = selectFields
+		this.fields.checkbox = checkboxFields
+		this.fields.group = []
+
+		textFields?.forEach(field => { this.removeEvent(field) })
+		textareaFields?.forEach(field => { this.removeEvent(field) })
+		selectFields?.forEach(field => { this.removeEvent(field) })
+		checkboxFields?.forEach(field => { this.removeEvent(field) })
+		groupFields?.forEach((group, index) => {
+			this.fields.group.push(group.querySelectorAll('input[type="checkbox"],input[type="radio"]'))
+			this.fields.group[index].forEach(field => { this.removeEvent(field) })
+		})
+	}
+
 	watchForChanges (field) {
 		field.addEventListener('change', () => { this.checkValidation() })
+	}
+
+	removeEvent (field) {
+		field.removeEventListener('change', () => { this.checkValidation() })
 	}
 
 	checkValidation () {
@@ -82,7 +111,7 @@ class FormCheckIt {
 			}
 		})
 
-		if (this.options.submitDisabled) {
+		if (this.options?.submitDisabled) {
 			valid ? this.enableSubmit() : this.disableSubmit()
 		}
 	}
@@ -94,5 +123,11 @@ class FormCheckIt {
 
 	enableSubmit () {
 		this.submitButton.removeAttribute('disabled')
+	}
+
+	reInit () {
+		this.removeRequiredFields()
+		this.listRequiredFields()
+		this.checkValidation()
 	}
 }
